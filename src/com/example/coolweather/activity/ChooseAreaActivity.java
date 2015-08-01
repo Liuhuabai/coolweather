@@ -12,7 +12,10 @@ import com.example.coolweather.util.Utility;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -35,9 +38,24 @@ public class ChooseAreaActivity extends Activity {
 	
 	private CoolWeatherDB coolWeatherDB;
 	
+	private boolean isFromWeatherActivity;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		//在WeatherActivity中，允许切换城市，因此这里首先判断一下
+		isFromWeatherActivity = getIntent().getBooleanExtra("from_weather_activity", false);
+		//首先根据配置文件中的内容，查询城市city_selected这一项是不是为true，如果为true
+		//那么就直接跳转到WeatherActivity上面去了。
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		// 默认取值为false
+		//如果已经选择了城市，并且不是从WeatherActivity跳转过来的。
+		if(prefs.getBoolean("city_selected", false) && !isFromWeatherActivity) {
+			Intent intent = new Intent(this,WeatherActivity.class);
+			startActivity(intent);
+			finish();
+			return;
+		}
+		//如果还没有选中城市，那么就从这里开始
 		//取消标题栏
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		
@@ -58,8 +76,10 @@ public class ChooseAreaActivity extends Activity {
 					currentLevel++;
 					queryArea(selectId);
 				} else {
-					String countryCode = currentAreas.get(index).getAreaCode();
-					LogUtil.v("ChooseAreaActivity", countryCode);
+					//将这个选中的城市写入到一个本地文件中，然后启动一个intent
+					String areaCode = currentAreas.get(index).getAreaCode();
+					queryWeatherCode(areaCode);
+					
 				}
 					
 				
@@ -105,6 +125,42 @@ public class ChooseAreaActivity extends Activity {
 			queryFromServer(code,superId);
 		}
 		
+	}
+	private String weatherCode;
+	private void queryWeatherCode(final String code) {
+		LogUtil.v("ChooseAreaActivity", "Try to get Weather Code  From Web");
+		String address = "http://www.weather.com.cn/data/list3/city" + code +
+				".xml";
+		
+		HttpUtil.sendHttpRequest(address, new HttpCallbackListener(){
+
+			@Override
+			public void onFinish(String response) {
+				String [] array = response.split("\\|");
+				if(array != null && array.length == 2) {
+					weatherCode = array[1];	
+				}
+				LogUtil.v("ChooseAreaActivity", "query Weather Code From Web Successfully...");
+				runOnUiThread(new Runnable(){
+					@Override
+					public void run() {
+						Intent intent = new Intent(ChooseAreaActivity.this,WeatherActivity.class);
+						LogUtil.v("ChooseAreaActivity", weatherCode);
+						intent.putExtra("weather_code", weatherCode);
+						startActivity(intent);
+						finish();
+					}
+					
+				});
+				
+			}
+
+			@Override
+			public void onError(Exception e) {
+				weatherCode = null;
+			}
+			
+		});
 	}
 	private void queryFromServer(final String code,final int superId) {
 		LogUtil.v("ChooseAreaActivity", "Try to DownLoad Data From Web To Database");
