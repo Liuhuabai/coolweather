@@ -30,6 +30,13 @@
             >
             
         </activity>
+        
+        <service 
+            android:name="com.example.coolweather.service.AutoUpdateService"
+            ></service>
+        <receiver 
+            android:name="com.example.coolweather.receiver.AutoUpdateReceiver"
+            ></receiver>
     </application>
 
 </manifest>

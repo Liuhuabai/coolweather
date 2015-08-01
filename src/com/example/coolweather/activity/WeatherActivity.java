@@ -3,6 +3,7 @@
  */
 package com.example.coolweather.activity;
 
+import com.example.coolweather.service.AutoUpdateService;
 import com.example.coolweather.util.HttpCallbackListener;
 import com.example.coolweather.util.HttpUtil;
 import com.example.coolweather.util.LogUtil;
@@ -111,6 +112,9 @@ public class WeatherActivity extends Activity implements OnClickListener {
 		//设置为可见
 		weatherInfoLayout.setVisibility(View.VISIBLE);
 		cityNameText.setVisibility(View.VISIBLE);
+		//把service开启
+		Intent intent = new Intent(this,AutoUpdateService.class);
+		startService(intent);
 		
 	}
 
