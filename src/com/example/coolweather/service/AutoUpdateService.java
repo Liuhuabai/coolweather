@@ -46,6 +46,7 @@ public class AutoUpdateService extends Service {
 		
 		AlarmManager manager = (AlarmManager) getSystemService(ALARM_SERVICE);
 		int anHour = 8*60*60*1000;  //8小时更新一次
+		//int anHour = 8*1000;//8s
 		long triggerAtTime = SystemClock.elapsedRealtime() + anHour;
 		Intent i = new Intent(this,AutoUpdateReceiver.class);
 		PendingIntent pi = PendingIntent.getBroadcast(this, 0, i, 0);
@@ -57,7 +58,7 @@ public class AutoUpdateService extends Service {
 	
 	private void updateWeatehr() {
 		//更新天气
-		LogUtil.v("AutoUpdateService", "query Weather by Weather Code");
+		LogUtil.v("AutoUpdateService", "query Weather by Weather Code,By Service");
 		//首先获取weather code
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		String weatherCode = prefs.getString("weather_code", "");

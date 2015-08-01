@@ -3,7 +3,6 @@
  */
 package com.example.coolweather.util;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -15,7 +14,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
-
 import com.example.coolweather.db.CoolWeatherDB;
 import com.example.coolweather.model.Area;
 
@@ -66,12 +64,20 @@ public class Utility {
 				//明天的温度
 				//String temp2 = weatherInfo.getString("temp2");
 				weatherDesp = weatherInfo.getString("weather1");
+				LogUtil.v("temp1", temp_today);
+				LogUtil.v("weatherDesp", weatherDesp);
 				saveWeatherInfo(context,cityName,weatherCode,temp_today,weatherDesp);
+				LogUtil.d("Utility", "Save Successfully...");
 			} else if(type == 1) {
 				temp_current = weatherInfo.getString("temp");
 				windDirection = weatherInfo.getString("WD");
 				publishTime = weatherInfo.getString("time");
+				LogUtil.v("temp_current", temp_current);
+				LogUtil.v("windDirection", windDirection);
+				LogUtil.v("publishTime", publishTime);
+
 				saveWeatherInfo(context,temp_current,windDirection,publishTime);
+				LogUtil.d("Utility", "Save Successfully...");
 			}
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
@@ -102,16 +108,17 @@ public class Utility {
 		editor.commit();
 	}
 	private static void saveWeatherInfo(Context context,String temp_current,String windDirection,String publishTime) {
-		SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-ddTHH:mm:ss",Locale.CHINA);
-		SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy年M月d日 HH时mm分ss秒",Locale.CHINA);
+	//	SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-ddTHH:mm:ss",Locale.CHINA);
+	//	SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy年M月d日 HH时mm分ss秒",Locale.CHINA);
 		SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
 		editor.putString("temp_current", temp_current);
 		editor.putString("wind_Direction", windDirection);
-		try {
-			editor.putString("publish_time", sdf2.format(sdf1.parse(publishTime)));
-		} catch (ParseException e) {
-			// e.printStackTrace();
-		}
+		editor.putString("publish_time", publishTime);
+//		try {
+//			editor.putString("publish_time", sdf2.format(sdf1.parse(publishTime)));
+//		} catch (ParseException e) {
+//			// e.printStackTrace();
+//		}
 		
 		//提交
 		editor.commit();

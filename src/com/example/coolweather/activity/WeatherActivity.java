@@ -109,9 +109,9 @@ public class WeatherActivity extends Activity implements OnClickListener {
 	private void showWeather() {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		cityNameText.setText(prefs.getString("city_name", ""));
-		publishText.setText("今天"+prefs.getString("publish_time", "")+"发布");
+		publishText.setText(prefs.getString("publish_time", "")+"发布");
 		
-		currentDateText.setText(prefs.getString("current_date", ""));
+		currentDateText.setText("日期:"+prefs.getString("current_date", ""));
 		weatherDespText.setText(prefs.getString("weather_desp", ""));
 		temp_current.setText(prefs.getString("temp_current", ""));
 		wind_direction.setText(prefs.getString("wind_Direction", ""));
@@ -124,6 +124,7 @@ public class WeatherActivity extends Activity implements OnClickListener {
 		//把service开启
 		Intent intent = new Intent(this,AutoUpdateService.class);
 		startService(intent);
+		LogUtil.v("WeatherActivity", "Start Service");
 		
 	}
 
@@ -147,6 +148,7 @@ public class WeatherActivity extends Activity implements OnClickListener {
 
 			@Override
 			public void onFinish(String response) {
+				
 				Utility.handleWeatherResponse(WeatherActivity.this, response,0);
 				
 			}
