@@ -3,6 +3,7 @@
  */
 package com.example.coolweather.util;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -51,20 +52,27 @@ public class Utility {
 	 * @param context
 	 * @param response
 	 */
-	public static void handleWeatherResponse(Context context,String response) {
+	public static void handleWeatherResponse(Context context,String response,int type) {
 		
 		try {
 			JSONObject jsonObject = new JSONObject(response);
 			JSONObject weatherInfo = jsonObject.getJSONObject("weatherinfo");
 			String cityName = weatherInfo.getString("city");
 			String weatherCode = weatherInfo.getString("cityid");
-			//最低温度在json数据中是temp2，这里调转一下
-			String temp1 = weatherInfo.getString("temp2");
-			//最高温度在json数据中是temp1，这里调转一下
-			String temp2 = weatherInfo.getString("temp1");
-			String weatherDesp = weatherInfo.getString("weather");
-			String publishTime = weatherInfo.getString("ptime");
-			saveWeatherInfo(context,cityName,weatherCode,temp1,temp2,weatherDesp,publishTime);
+			String temp_today,temp_current,weatherDesp,publishTime,windDirection;
+			if(type == 0) {
+				//今天的温度
+				temp_today = weatherInfo.getString("temp1");
+				//明天的温度
+				//String temp2 = weatherInfo.getString("temp2");
+				weatherDesp = weatherInfo.getString("weather1");
+				saveWeatherInfo(context,cityName,weatherCode,temp_today,weatherDesp);
+			} else if(type == 1) {
+				temp_current = weatherInfo.getString("temp");
+				windDirection = weatherInfo.getString("WD");
+				publishTime = weatherInfo.getString("time");
+				saveWeatherInfo(context,temp_current,windDirection,publishTime);
+			}
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -76,26 +84,37 @@ public class Utility {
 	 * @param context
 	 * @param cityName
 	 * @param weatherCode
-	 * @param temp1
-	 * @param temp2
+	 * @param temp_today
 	 * @param weatherDesp
-	 * @param publishTime
 	 */
-	private static void saveWeatherInfo(Context context, String cityName,
-			String weatherCode, String temp1, String temp2, String weatherDesp,
-			String publishTime) {
+	private static void saveWeatherInfo(Context context,String cityName,String weatherCode,String temp_today,String weatherDesp) {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy年M月d日",Locale.CHINA);
 		SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
 		editor.putBoolean("city_selected", true);
 		editor.putString("city_name", cityName);
 		editor.putString("weather_code", weatherCode);
-		editor.putString("temp1", temp1);
-		editor.putString("temp2", temp2);
+		editor.putString("temp_today", temp_today);
+		
 		editor.putString("weather_desp", weatherDesp);
-		editor.putString("publish_time", publishTime);
+		
 		editor.putString("current_date", sdf.format(new Date()));
 		//提交
 		editor.commit();
-		
 	}
+	private static void saveWeatherInfo(Context context,String temp_current,String windDirection,String publishTime) {
+		SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-ddTHH:mm:ss",Locale.CHINA);
+		SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy年M月d日 HH时mm分ss秒",Locale.CHINA);
+		SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
+		editor.putString("temp_current", temp_current);
+		editor.putString("wind_Direction", windDirection);
+		try {
+			editor.putString("publish_time", sdf2.format(sdf1.parse(publishTime)));
+		} catch (ParseException e) {
+			// e.printStackTrace();
+		}
+		
+		//提交
+		editor.commit();
+	}
+
 }

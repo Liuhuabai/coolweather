@@ -62,19 +62,38 @@ public class AutoUpdateService extends Service {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		String weatherCode = prefs.getString("weather_code", "");
 		
-		String address = "http://www.weather.com.cn/data/cityinfo/" +
-				weatherCode + ".html";
-		HttpUtil.sendHttpRequest(address, new HttpCallbackListener(){
+		String address0 = "http://weather.51wnl.com/weatherinfo/GetMoreWeather?cityCode=" +
+				weatherCode + "&weatherType=0";
+		String address1 = "http://weather.51wnl.com/weatherinfo/GetMoreWeather?cityCode=" +
+				weatherCode + "&weatherType=1";
+
+		//开启服务，然后写入到配置文件中去
+		HttpUtil.sendHttpRequest(address0, new HttpCallbackListener(){
 
 			@Override
 			public void onFinish(String response) {
-				Utility.handleWeatherResponse(AutoUpdateService.this, response);
+				Utility.handleWeatherResponse(AutoUpdateService.this, response,0);
 				
 			}
 
 			@Override
 			public void onError(Exception e) {
-				e.printStackTrace();
+				
+				
+			}
+			
+		});
+		HttpUtil.sendHttpRequest(address1, new HttpCallbackListener(){
+
+			@Override
+			public void onFinish(String response) {
+				Utility.handleWeatherResponse(AutoUpdateService.this, response,1);
+				
+			}
+
+			@Override
+			public void onError(Exception e) {
+				
 				
 			}
 			

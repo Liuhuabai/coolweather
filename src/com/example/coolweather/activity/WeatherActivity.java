@@ -45,11 +45,13 @@ public class WeatherActivity extends Activity implements OnClickListener {
 	/**
 	 * 温度1
 	 */
-	private TextView temp1Text;
+	private TextView temp_current;
 	/**
 	 * 温度2
 	 */
-	private TextView temp2Text;
+	private TextView temp_today;
+	
+	private TextView wind_direction;
 	/**
 	 * 当前日期
 	 */
@@ -75,10 +77,13 @@ public class WeatherActivity extends Activity implements OnClickListener {
 		cityNameText = (TextView) findViewById(R.id.city_name);
 		publishText = (TextView) findViewById(R.id.publish_text);
 		
-		weatherDespText = (TextView) findViewById(R.id.weather_desp);
-		temp1Text = (TextView) findViewById(R.id.temp1);
-		temp2Text = (TextView) findViewById(R.id.temp2);
 		currentDateText = (TextView) findViewById(R.id.current_date);
+		weatherDespText = (TextView) findViewById(R.id.weather_desp);
+		
+		temp_current = (TextView) findViewById(R.id.temp_current);
+		wind_direction = (TextView)findViewById(R.id.wind_direction);
+		temp_today = (TextView) findViewById(R.id.temp_today);
+		
 		
 		switchCity = (Button) findViewById(R.id.switch_city);
 		switchCity.setOnClickListener(this);
@@ -104,11 +109,15 @@ public class WeatherActivity extends Activity implements OnClickListener {
 	private void showWeather() {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		cityNameText.setText(prefs.getString("city_name", ""));
-		temp1Text.setText(prefs.getString("temp1", ""));
-		temp2Text.setText(prefs.getString("temp2", ""));
-		weatherDespText.setText(prefs.getString("weather_desp", ""));
 		publishText.setText("今天"+prefs.getString("publish_time", "")+"发布");
+		
 		currentDateText.setText(prefs.getString("current_date", ""));
+		weatherDespText.setText(prefs.getString("weather_desp", ""));
+		temp_current.setText(prefs.getString("temp_current", ""));
+		wind_direction.setText(prefs.getString("wind_Direction", ""));
+		temp_today.setText(prefs.getString("temp_today", ""));
+		
+		
 		//设置为可见
 		weatherInfoLayout.setVisibility(View.VISIBLE);
 		cityNameText.setVisibility(View.VISIBLE);
@@ -121,21 +130,41 @@ public class WeatherActivity extends Activity implements OnClickListener {
 
 	private void queryWeatherInfo(String weatherCode) {
 		LogUtil.v("WeatherActivity", "query Weather by Weather Code");
-		String address = "http://www.weather.com.cn/data/cityinfo/" +
-				weatherCode + ".html";
-		queryFromServer(address);
+		String address0 = "http://weather.51wnl.com/weatherinfo/GetMoreWeather?cityCode=" +
+				weatherCode + "&weatherType=0";
+		String address1 = "http://weather.51wnl.com/weatherinfo/GetMoreWeather?cityCode=" +
+				weatherCode + "&weatherType=1";
+		//http://weather.51wnl.com/weatherinfo/GetMoreWeather?cityCode=101040100&weatherType=0
+		queryFromServer(address0,address1);
 		
 	}
 
 
-	private void queryFromServer(String address) {
-		//开启服务，然后写入到配置文件中去
+	private void queryFromServer(String address0,String address1) {
 		
-		HttpUtil.sendHttpRequest(address, new HttpCallbackListener(){
+		//开启服务，然后写入到配置文件中去
+		HttpUtil.sendHttpRequest(address0, new HttpCallbackListener(){
 
 			@Override
 			public void onFinish(String response) {
-				Utility.handleWeatherResponse(WeatherActivity.this, response);
+				Utility.handleWeatherResponse(WeatherActivity.this, response,0);
+				
+			}
+
+			@Override
+			public void onError(Exception e) {
+				
+				
+			}
+			
+		});
+		
+		HttpUtil.sendHttpRequest(address1, new HttpCallbackListener(){
+
+			@Override
+			public void onFinish(String response) {
+				Utility.handleWeatherResponse(WeatherActivity.this, response,1);
+				//Utility.handleWeatherResponse(WeatherActivity.this, response,0);
 				runOnUiThread(new Runnable(){
 
 					@Override
