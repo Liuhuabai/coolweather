@@ -3,6 +3,8 @@ package com.example.coolweather.activity;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.youmi.android.AdManager;
+
 import com.example.coolweather.db.CoolWeatherDB;
 import com.example.coolweather.model.Area;
 import com.example.coolweather.util.HttpCallbackListener;
@@ -42,6 +44,9 @@ public class ChooseAreaActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		// 完成有米广告的初始化部分 发布id 应用密钥 是不是测试模式
+		AdManager.getInstance(this).init("d55174db1308b0ef", "4c9ae4fbcc6b1a6a", false);
 		//在WeatherActivity中，允许切换城市，因此这里首先判断一下
 		isFromWeatherActivity = getIntent().getBooleanExtra("from_weather_activity", false);
 		//首先根据配置文件中的内容，查询城市city_selected这一项是不是为true，如果为true
